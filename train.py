@@ -1,26 +1,13 @@
 import os
 import math
-import heapq
 import torch
 import argparse
-import torchaudio
-import librosa
-import librosa.display
 import torch.nn as nn
-import torch.nn.functional as F
-import matplotlib.pyplot as plt
 import numpy as np
-import soundfile as sf
 
-from numpy import asarray
-from numpy.random import randn
-from numpy.random import randint
-from numpy import linspace
-from glob import glob
 from torchvision import utils
-from torch import autograd, optim
+from torch import optim
 from tqdm import tqdm
-from functools import partial
 from torchaudio.transforms import Spectrogram
 from torch.utils.data import DataLoader
 from model import Encoder, Decoder
@@ -28,10 +15,8 @@ from util import *
 
 
 if __name__ == "__main__":
-    device = 'cuda'
-
     parser = argparse.ArgumentParser()
-
+    parser.add_argument('--device', type=str, default='cuda')
     parser.add_argument('--lr', type=float, default=0.0003)
     parser.add_argument('--batch', type=int, default=64)
     parser.add_argument('--vector_dim', type=int, default=512)
@@ -59,7 +44,7 @@ if __name__ == "__main__":
     criterion = nn.MSELoss()
 
     if args.ckpt != "":
-      state_dict = torch.load(args.ckpt, map_location='cuda')
+      state_dict = torch.load(args.ckpt, map_location=args.device)
       # state_dict['encoder'].pop('fc.weight',None)
       # state_dict['encoder'].pop('fc.bias',None)
       new_state_dict_e = encoder.state_dict()
@@ -72,8 +57,8 @@ if __name__ == "__main__":
       new_state_dict_d.update(state_dict['decoder'])
       decoder.load_state_dict(new_state_dict_d)
 
-    encoder.to('cuda')
-    decoder.to('cuda')
+    encoder.to(args.device)
+    decoder.to(args.device)
 
 
     specobj = Spectrogram(n_fft=4*args.hop, win_length=4*args.hop, hop_length=args.hop, pad=0, power=2, normalized=False)
@@ -102,7 +87,7 @@ if __name__ == "__main__":
 
               batch = adata[np.random.randint(adata.shape[0], size=args.batch), :]
               
-              x = torch.tensor(batch).to('cuda').transpose(1,3)
+              x = torch.tensor(batch).to(args.device).transpose(1,3)
               z, kld, mu = encoder(x)
               _x = decoder(z)
 
@@ -121,7 +106,10 @@ if __name__ == "__main__":
               e_optim.step()
               d_optim.step()
 
-              if it_count % 1000 == 0:
+              if not os.path.exists('sample'):
+                os.makedirs('sample')
+
+              if it_count % 2500 == 0:
                 utils.save_image(x, f'sample/{str(it_count).zfill(6)}_input.png',
                   nrow=8,
                   normalize=True,
@@ -132,6 +120,9 @@ if __name__ == "__main__":
                   normalize=True,
                   range=(-1, 1))
 
+              if not os.path.exists(args.save_dir):
+                os.makedirs(args.save_dir)
+              
               if it_count % 10000 == 0:
                 torch.save(
                   {

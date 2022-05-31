@@ -1,36 +1,15 @@
 import torch
-import os
-import math
-import util
-import heapq
-import torch
-import argparse
 import torchaudio
 import librosa
 import librosa.display
 import torch.nn as nn
-import torch.nn.functional as F
 import matplotlib.pyplot as plt
 import numpy as np
 import soundfile as sf
 
-from numpy import asarray
-from numpy.random import randn
-from numpy.random import randint
-from numpy import linspace
 from glob import glob
-from torchvision import utils
-from torch import autograd, optim
-from torch.autograd import Variable, grad
 from torch.utils.data import Dataset
 from tqdm import tqdm
-from functools import partial
-from torchaudio.transforms import MelScale, Spectrogram
-from model import Encoder, Decoder
-from perlin_numpy import (
-    generate_fractal_noise_2d, generate_fractal_noise_3d,
-    generate_perlin_noise_2d, generate_perlin_noise_3d
-)
 
 def requires_grad(model, flag=True):
     for p in model.parameters():
@@ -273,18 +252,6 @@ def plot_spec_encoded_in_latent_space(latent_representations, sample_labels):
 def generate_random_z_vect(seed=1001,size_z=1,scale=1,vector_dim=128):
     np.random.seed(seed)
     x = np.random.uniform(low=(scale * -1.0), high=scale, size=(size_z,vector_dim))
-    return x
-
-def generate_z_vect_from_perlin_noise(seed=1001, size_z=1, scale=1.0,vector_dim=128):
-    np.random.seed(seed)
-    x = generate_perlin_noise_2d((size_z, vector_dim), (1,1))
-    x = x*scale
-    return x
-
-def generate_z_vect_from_fractal_noise(seed=1001, size_z=1, scale=1.0,vector_dim=128):
-    np.random.seed(seed)
-    x = generate_fractal_noise_2d((size_z, vector_dim), (1,1),)
-    x = x*scale
     return x
 
 

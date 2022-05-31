@@ -1,7 +1,5 @@
 import torch
 from torch import nn
-from torch.nn import functional as F
-from torch.autograd import Function
 from functools import reduce
 from operator import __add__
 
