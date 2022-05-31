@@ -1,10 +1,8 @@
 import os
 import torch
 import argparse
-import torch.nn as nn
 import numpy as np
 
-from torch import optim
 from torchaudio.transforms import Spectrogram
 from model import Encoder, Decoder
 from util import *

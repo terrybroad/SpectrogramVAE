@@ -1,43 +1,30 @@
 import os
 import torch
 import argparse
-import torch.nn as nn
 import numpy as np
 
-from torch import optim
 from torchaudio.transforms import Spectrogram
 from model import Encoder, Decoder
 from util import *
 
 #Interpolate between two seeds for n-amount of steps
-def interp_gen(decoder, args, specfunc, num_samples=1, _use_seed=False, _seed=1001, interp_steps=5, z_scale=-2.2, interp_scale=1.2, save=False, name="one_shot", path="/content/"):
+def interp_gen(decoder, args, specfunc, num_samples=1, _use_seed=False, _seed=1001, interp_steps=5, z_scale=-2.2, interp_scale=1.2):
     use_seed = _use_seed #@param {type:"boolean"}
-    seed =  _seed #@param {type:"slider", min:0, max:4294967295, step:1}
+    seed = _seed #@param {type:"slider", min:0, max:4294967295, step:1}
     num_interpolation_steps = interp_steps#@param {type:"integer"}
     scale_z_vectors =  z_scale #@param {type:"slider", min:-5.0, max:5.0, step:0.1}
     scale_interpolation_ratio =  interp_scale #@param {type:"slider", min:-5.0, max:5.0, step:0.1}
-    save_audio = save #@param {type:"boolean"}
-    audio_name = name #@param {type:"string"}
-    audio_save_directory = path #@param {type:"string"}
-
-    # generate points in latent space as input for the generator
-    def generate_latent_points(latent_dim, n_samples, n_classes=10):
-      # generate points in the latent space
-      x_input = randn(latent_dim * n_samples)
-      # reshape into a batch of inputs for the network
-      z_input = x_input.reshape(n_samples, latent_dim)
-      return z_input
 
     # uniform interpolation between two points in latent space
     def interpolate_points(p1, p2,scale, n_steps=10):
       # interpolate ratios between the points
-      ratios = linspace(-scale, scale, num=n_steps)
+      ratios = np.linspace(-scale, scale, num=n_steps)
       # linear interpolate vectors
       vectors = list()
       for ratio in ratios:
         v = (1.0 - ratio) * p1 + ratio * p2
         vectors.append(v)
-      return asarray(vectors)
+      return np.asarray(vectors)
 
     y = np.random.randint(0, 2**32-1)
     if not use_seed:
@@ -98,4 +85,4 @@ if __name__ == "__main__":
     specobj = Spectrogram(n_fft=4*args.hop, win_length=4*args.hop, hop_length=args.hop, pad=0, power=2, normalized=False)
     specfunc = specobj.forward
 
-    interp_gen(decoder, args, specfunc, num_samples=args.num_samples, _use_seed=False, _seed=1001, interp_steps=args.interp_steps, z_scale=args.z_scale, interp_scale=args.interp_scale, save=True, name="interp_audio", path="sample")
+    interp_gen(decoder, args, specfunc, num_samples=args.num_samples, _use_seed=False, _seed=1001, interp_steps=args.interp_steps, z_scale=args.z_scale, interp_scale=args.interp_scale)
