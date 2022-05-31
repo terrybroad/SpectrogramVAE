@@ -195,7 +195,6 @@ def splitcut(data,args):
   ls = []
   mini = 0
   minifinal = args.spec_split*args.shape   #max spectrogram length
-  print(data.shape[0])
   for i in range(data.shape[0]-1):
     if data[i].shape[1]<=data[i+1].shape[1]:
       mini = data[i].shape[1]
@@ -291,7 +290,6 @@ def chopspec(spec, shape):
 def towave_reconstruct(spec, spec1, args, specfunc, name, path='../content/', show=False, save=False):
   specarr = chopspec(spec, args.shape)
   specarr1 = chopspec(spec1, args.shape)
-  print(specarr.shape)
   a = specarr
   print('Generating...')
   ab = specarr1
@@ -319,13 +317,10 @@ def towave_reconstruct(spec, spec1, args, specfunc, name, path='../content/', sh
 #Converting from Z vector generated spectrogram to waveform
 def towave_from_z(spec, args, specfunc, name, path='../content/', show=False, save=False):
   specarr = chopspec(spec, args.shape)
-  print(specarr.shape)
   a = specarr
-  print(a.shape)
   print('Generating...')
   print('Assembling and Converting...')
   a = specass(a,spec,args.shape)
-  print(a.shape)
   awv = deprep(a,args,specfunc)
   if save:
     print('Saving...')

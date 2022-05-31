@@ -70,10 +70,7 @@ if __name__ == "__main__":
 
     #AUDIO TO CONVERT
     awv = audio_array_from_track(args.track)         #get waveform array from folder containing wav files
-    print(awv)
-    track_spec = tospec(awv, args, specfunc)   
-    print(track_spec)                 
+    track_spec = tospec(awv, args, specfunc)                 
     track_data = splitcut(track_spec, args)    
-    print(track_data)
 
     reconstruct_gen(encoder, decoder, args, specfunc, track_data)
